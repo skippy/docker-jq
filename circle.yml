@@ -1,0 +1,24 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - docker info
+    - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
+    - make build
+    - mkdir -p ~/docker; docker save $(docker images -q | tr -d \n) > ~/docker/image.tar
+
+test:
+  override:
+    - make test
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - make release
+
+
